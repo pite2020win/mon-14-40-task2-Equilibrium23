@@ -1,22 +1,3 @@
-
-#Flight simulator. 
-#Write a code in python that simulates the tilt correction of the plane (angle between plane wings and earth). 
-#The program should print out current orientation, and applied tilt correction.
-# (Tilt is "Roll" in this diagram https://www.novatel.com/assets/Web-Phase-2-2012/Solution-Pages/AttitudePlane.png)
-#The program should run in infinite loop, until user breaks the loop. 
-#Assume that plane orientation in every new simulation step is changing with random angle with gaussian distribution (the planes is experiencing "turbuence"). 
-# Hint: "random.gauss(0, 2*rate_of_correction)"
-#With every simulation step the orentation should be corrected, correction should be applied and printed out.
-
-# Plane as a class, internally uses Correction class
-# Environment as a class, which disoses turbulence
-# Turbulence and Correction as classes of abstract class Event (ABC)
-# Use generator in a while loop (see what is that online)
-# Pep8, do not print inside function, name == main
-# create a usecase script in task.py
-# for logging use logging module (instead of printing)
-# bonus: use multiprocessing (you will not exceed 10/10 but it will help you)
-
 from abc import ABC,abstractmethod
 import threading
 
@@ -77,8 +58,8 @@ from sys import exit
 
 if __name__ == '__main__':
     
-  plane1 = Plane("Boeing",10)
-  plane2 = Plane("Airbus",20)
+  plane1 = Plane("Boeing",0)
+  plane2 = Plane("Airbus",0)
 
   info = {plane1.name:plane1.angle,plane2.name:plane2.angle}
 
@@ -105,3 +86,4 @@ if __name__ == '__main__':
     info[plane2.name] = plane2.angle
 
     print(info)
+    sleep(0.5)
