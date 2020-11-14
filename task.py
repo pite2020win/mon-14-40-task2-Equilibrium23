@@ -7,27 +7,101 @@
 #Assume that plane orientation in every new simulation step is changing with random angle with gaussian distribution (the planes is experiencing "turbuence"). 
 # Hint: "random.gauss(0, 2*rate_of_correction)"
 #With every simulation step the orentation should be corrected, correction should be applied and printed out.
-import random
 
-def drawGround():
-  for _ in range(20):
-    print("*",end = '')
+# Plane as a class, internally uses Correction class
+# Environment as a class, which disoses turbulence
+# Turbulence and Correction as classes of abstract class Event (ABC)
+# Use generator in a while loop (see what is that online)
+# Pep8, do not print inside function, name == main
+# create a usecase script in task.py
+# for logging use logging module (instead of printing)
+# bonus: use multiprocessing (you will not exceed 10/10 but it will help you)
 
-def drawPlaneWings(angle):
-  a = 
+from abc import ABC,abstractmethod
+import threading
 
-def drawCorrection(angle):
+class AngleEvent(ABC):
+  def __init__(self,angle):
+    self.angle = angle
 
+  @abstractmethod      
+  def apply_angle_changes(self,change_angle):
+      pass
 
+class Correction(AngleEvent):
+  def __init__(self,angle):
+    super().__init__(angle)
 
-if __name__ == "__main__":
+  def apply_angle_changes(self, change_angle):
+      self.angle -= change_angle
+      return self.angle
+
+class Turbulence(AngleEvent):
+  def __init__(self,angle):
+        super().__init__(angle)
+
+  def apply_angle_changes(self, change_angle):
+      self.angle += change_angle
+      return self.angle
+
+from random import gauss
+
+def angle_generator():
   while True:
-    tempAngle = random.gauss(0, 2*180)
+    yield gauss(0,180)
+
+class Plane:
+  def __init__(self, name,angle):
+    self.name = name
+    self.angle = angle
+    self.turbulance_angle = 0
+    self.turbulence = Turbulence(angle)
+    self.correction = Correction(angle)
+    self.angle_gen = angle_generator()
+
+
+  def storm(self):
+    self.turbulance_angle = next(self.angle_gen)
+    self.angle = self.turbulence.apply_angle_changes( self.turbulance_angle )
+    self.correction.angle = self.angle
     
 
+  def auto_pilot(self):
+    self.angle = self.correction.apply_angle_changes( self.turbulance_angle )
+    self.turbulence.angle = self.angle
+        
+
+from time import sleep
+from sys import exit
 
 
+if __name__ == '__main__':
+    
+  plane1 = Plane("Boeing",10)
+  plane2 = Plane("Airbus",20)
 
-# I have no idea what to do :(
-# kind of hard to create smth impressive after 6h of classes in a row
-# do anything ;) make it run     
+  info = {plane1.name:plane1.angle,plane2.name:plane2.angle}
+
+  while True:
+    print("Storm is comming:")
+
+    plane1.storm()
+    info[plane1.name] = plane1.angle
+
+    plane2.storm()
+    info[plane2.name] = plane2.angle
+
+    print(info)
+    if abs(plane1.angle - plane2.angle) < 1:
+      print("Planes {} and {} just crashed".format(plane1.name,plane2.name)) 
+      exit()  
+
+    print("Auto Pilot correction:")
+
+    plane1.auto_pilot()
+    info[plane1.name] = plane1.angle
+
+    plane2.auto_pilot()
+    info[plane2.name] = plane2.angle
+
+    print(info)
